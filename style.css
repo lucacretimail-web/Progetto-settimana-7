@@ -1,0 +1,362 @@
+/* SportsHub — stile sopra Bootstrap 5.3.3, annidato come l'HTML.
+   Ordine: token, base, layout, testata, filtro, titoli, stati, elementi comuni, card, agenda, pannello, partite, modale. */
+
+/* Token: colori campionati dal riferimento, interlinea 1,6 (righe a 23 px con testo a 14,4 px), ponte verso Bootstrap */
+:root {
+  --color-navy: #193366;
+  --color-on-navy: #ffffff;
+  --color-page: #f4f6fa;
+  --color-card: #ffffff;
+  --color-text: #1a1a1a;
+  --color-muted: #666666;
+  --color-line: #eeeeee;
+  --color-score: #2d864a;
+  --color-favorite: #f0c430;
+  --color-saved: #e8e8eb;
+  --color-remove-bg: #ffe5e5;
+  --color-remove-border: #cc4444;
+  --color-remove-text: #aa0000;
+  --color-focus: var(--color-navy);
+  --font-body: Arial, Helvetica, sans-serif;
+  --page-max: 1100px;
+  --page-gutter: 20px;
+  --radius: 8px;
+  --radius-control: 4px;
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 10px 24px rgba(0, 0, 0, 0.12);
+  --badge-size: 100px;
+  --bs-body-font-family: var(--font-body);
+  --bs-body-line-height: 1.6;
+  --bs-body-bg: var(--color-page);
+  --bs-body-color: var(--color-text);
+}
+
+/* Focus da tastiera sempre visibile; su pillole e card gira attorno a tutto l'elemento */
+:focus-visible,
+.sport-filter__option:has(:focus-visible),
+.team-card__open:focus-visible::after {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Layout: contenuto largo al massimo 1060 px (1100 meno 20 per lato) come il riferimento; 24 px tra i blocchi del main */
+.container {
+  --bs-gutter-x: calc(var(--page-gutter) * 2);
+  max-width: var(--page-max);
+}
+
+main {
+  padding-block: 40px;
+  > * + * { margin-top: 24px; }
+}
+
+/* Testata: fascia blu alta 234 px come il riferimento, uguale a ogni larghezza; ricerca larga al massimo 540 px */
+.site-header {
+  --color-focus: var(--color-on-navy);
+  padding: 48px 0 40px;
+  background-color: var(--color-navy);
+  color: var(--color-on-navy);
+  text-align: center;
+  .site-header__title {
+    margin-bottom: 16px;
+    font-size: 2.4rem;
+    font-weight: 700;
+  }
+  .site-header__lead {
+    margin-bottom: 19px;
+    opacity: 0.9;
+  }
+  .search {
+    display: flex;
+    gap: 8px;
+    max-width: 540px;
+    margin: 0 auto;
+    .search__input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: var(--radius-control);
+      line-height: 1.2;
+    }
+    .search__button {
+      padding: 0 24px;
+      border: 0;
+      border-radius: var(--radius-control);
+      background-color: var(--color-on-navy);
+      color: var(--color-navy);
+      font-weight: 700;
+    }
+  }
+}
+
+/* Filtro per sport: pillole; il radio non si vede ma resta per tastiera e lettori di schermo; la scelta ha anche la ✓ */
+.sport-filter {
+  fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sport-filter__legend {
+    margin-bottom: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .sport-filter__option {
+    position: relative;
+    padding: 6px 14px;
+    border: 1px solid var(--color-navy);
+    border-radius: 999px;
+    background-color: var(--color-card);
+    color: var(--color-navy);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    &:has(:checked) {
+      background-color: var(--color-navy);
+      color: var(--color-on-navy);
+      &::before { content: "✓ "; }
+    }
+    .sport-filter__input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+}
+
+/* Titoli di sezione e del pannello: 24 px in grassetto, come «Squadre trovate» nel riferimento */
+:is(.section-title, .detail__title) {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* Stati: messaggio in corsivo grigio, spinner blu; in pannello e agenda il messaggio ha il separatore, come una partita */
+.status {
+  .status__message {
+    margin: 0 0 16px;
+    color: var(--color-muted);
+    font-style: italic;
+    :is(.detail, .agenda) & {
+      margin: 0;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-line);
+      color: var(--color-text);
+    }
+  }
+  .status__spinner { color: var(--color-navy); }
+}
+
+/* Elementi comuni: liste senza punti, superfici bianche, pulsanti senza aspetto da pulsante, stemmi */
+:is(.team-list, .match-list) {
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:is(.team-card, .agenda__panel, .detail) {
+  border-radius: var(--radius);
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+:is(.team-card__open, .match__open) {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+:is(.team-card__badge, .match-modal__badge) {
+  width: var(--badge-size);
+  height: var(--badge-size);
+  object-fit: contain;
+  /* Senza stemma o se non si carica: cerchio con l'iniziale (un <img> senza src mostrerebbe l'icona rotta) */
+  &:is(.team-card__badge--empty, .match-modal__badge--empty) {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background-color: var(--color-line);
+    color: var(--color-muted);
+    font-size: calc(var(--badge-size) * 0.4);
+    font-weight: 700;
+  }
+}
+
+/* Card squadra (343 × 273 px nel riferimento): in colonna, pulsante dei preferiti in fondo; l'ultima sola si allarga */
+.team-list > li { flex-grow: 1; }
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  padding: 16px;
+  text-align: center;
+  @media (hover: hover) {
+    &:hover { box-shadow: var(--shadow-card-hover); }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    &:hover { transform: translateY(-2px); }
+  }
+  .team-card__badge { margin: 0 auto 15px; }
+  .team-card__name {
+    margin-bottom: 5px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+  /* Il pulsante del nome copre tutta la card con ::after, che porta anche il contorno del focus */
+  .team-card__open {
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+    }
+    &:focus-visible { outline: none; }
+  }
+  .team-card__meta {
+    margin-bottom: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    &:last-of-type { margin-bottom: 11px; }
+  }
+  /* Preferiti: sopra il pulsante del nome, alto 38 px; giallo «Aggiungi», grigio «Già nei preferiti», rosa «Rimuovi» */
+  .team-card__favorite {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-size: 0.95rem;
+    font-weight: 700;
+    @media (hover: hover) {
+      &:hover { filter: brightness(0.95); }
+    }
+    &.team-card__favorite--add {
+      background-color: var(--color-favorite);
+      color: var(--color-text);
+    }
+    &.team-card__favorite--saved {
+      background-color: var(--color-saved);
+      color: var(--color-text);
+      cursor: default;
+      filter: none;
+    }
+    &.team-card__favorite--remove {
+      border-color: var(--color-remove-border);
+      background-color: var(--color-remove-bg);
+      color: var(--color-remove-text);
+    }
+  }
+}
+
+/* Agenda dei preferiti: le partite in un pannello bianco */
+.agenda .agenda__panel { padding: 8px 24px; }
+
+/* Pannello della squadra: titolo blu, titoli delle colonne con la riga blu e i margini di un h3 (1 em) */
+.detail {
+  padding: 24px;
+  .detail__title { color: var(--color-navy); }
+  .detail__subtitle {
+    margin: 1em 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--color-navy);
+    font-size: 1.17rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+}
+
+/* Partite: ogni voce è un pulsante largo tutta la riga che apre la modale; data grigia, nome in grassetto, punteggio verde */
+.match-list .match {
+  border-bottom: 1px solid var(--color-line);
+  .match__open {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    text-align: left;
+    .match__date {
+      display: block;
+      color: var(--color-muted);
+      font-size: 0.85rem;
+    }
+    .match__name {
+      font-weight: 700;
+      @media (hover: hover) {
+        .match__open:hover & { text-decoration: underline; }
+      }
+    }
+    .match__score {
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: var(--radius-control);
+      background-color: var(--color-score);
+      font-size: 0.85rem;
+      line-height: 1.1;
+    }
+  }
+}
+
+/* Modale della partita: bianca come le card (Bootstrap userebbe il colore della pagina); squadre ai lati, punteggio o «vs» al centro */
+.match-modal {
+  --bs-modal-bg: var(--color-card);
+  --badge-size: 64px;
+  .match-modal__title {
+    color: var(--color-navy);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .match-modal__teams {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    .match-modal__team {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      .match-modal__team-name { font-weight: 700; }
+    }
+    .match-modal__score {
+      padding: 4px 10px;
+      border-radius: var(--radius-control);
+      background-color: var(--color-score);
+      font-size: 1.1rem;
+    }
+    .match-modal__versus {
+      color: var(--color-muted);
+      font-weight: 700;
+    }
+  }
+  .match-modal__facts {
+    margin: 24px 0 0;
+    .match-modal__fact {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-line);
+      dt {
+        color: var(--color-muted);
+        font-weight: 400;
+      }
+      dd {
+        margin: 0;
+        font-weight: 700;
+        text-align: right;
+      }
+    }
+  }
+}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportsHub — Squadre, partite e risultati</title>
+    <meta name="description" content="Cerca una squadra su TheSportsDB e scopri le sue prossime partite e gli ultimi risultati.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <!-- Testata: nome, sottotitolo e ricerca della squadra -->
+    <header class="site-header">
+      <div class="container">
+        <h1 class="site-header__title">SportsHub</h1>
+        <p class="site-header__lead">Cerca una squadra, scopri prossime partite e ultimi risultati.</p>
+        <form id="search-form" class="search" role="search">
+          <label for="search-input" class="visually-hidden">Nome della squadra</label>
+          <input id="search-input" class="search__input" type="search" name="team" placeholder="es. Arsenal, Los Angeles Lakers, Real Madrid…" required minlength="3" maxlength="50" autocomplete="off">
+          <button type="submit" class="search__button">Cerca</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="container">
+
+      <!-- Filtro per sport: agisce sulle card di preferiti e risultati, senza richieste all'API; i valori sono quelli di strSport -->
+      <form id="sport-filter" class="sport-filter">
+        <fieldset>
+          <legend class="sport-filter__legend">Sport</legend>
+          <label class="sport-filter__option"><input class="sport-filter__input" type="radio" name="sport" value="" checked> Tutti</label>
+          <label class="sport-filter__option"><input class="sport-filter__input" type="radio" name="sport" value="Soccer"> Calcio</label>
+          <label class="sport-filter__option"><input class="sport-filter__input" type="radio" name="sport" value="Basketball"> Basket</label>
+          <label class="sport-filter__option"><input class="sport-filter__input" type="radio" name="sport" value="American Football"> Football americano</label>
+        </fieldset>
+      </form>
+
+      <!-- Preferiti: le squadre salvate nel browser; il titolo riceve il focus quando se ne toglie una -->
+      <section id="favorites" class="favorites" aria-labelledby="favorites-title">
+        <h2 id="favorites-title" class="section-title" tabindex="-1"><span aria-hidden="true">⭐</span> Le tue squadre preferite</h2>
+        <div id="favorites-status" class="status" role="status"></div>
+        <ul id="favorites-list" class="team-list row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"></ul>
+      </section>
+
+      <!-- Prossimi appuntamenti: la prossima partita di ogni preferito, in ordine di data; nascosta finché non ci sono preferiti -->
+      <section id="agenda" class="agenda" aria-labelledby="agenda-title" hidden>
+        <h2 id="agenda-title" class="section-title"><span aria-hidden="true">📅</span> Prossimi appuntamenti</h2>
+        <div class="agenda__panel">
+          <div id="agenda-status" class="status" role="status"></div>
+          <ul id="agenda-list" class="match-list"></ul>
+        </div>
+      </section>
+
+      <!-- Squadre trovate: messaggio di stato e card della ricerca -->
+      <section id="results" class="results" aria-labelledby="results-title">
+        <h2 id="results-title" class="section-title">Squadre trovate</h2>
+        <div id="results-status" class="status" role="status"></div>
+        <ul id="results-list" class="team-list row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"></ul>
+      </section>
+
+      <!-- Pannello della squadra scelta: prossimi eventi e ultimi risultati, affiancati da 768 px -->
+      <section id="detail" class="detail" aria-labelledby="detail-title" hidden>
+        <h2 id="detail-title" class="detail__title" tabindex="-1"></h2>
+        <div class="row g-4">
+          <section class="detail__column col-12 col-md-6" aria-labelledby="next-title">
+            <h3 id="next-title" class="detail__subtitle">Prossimi eventi</h3>
+            <div id="next-status" class="status" role="status"></div>
+            <ul id="next-list" class="match-list"></ul>
+          </section>
+          <section class="detail__column col-12 col-md-6" aria-labelledby="last-title">
+            <h3 id="last-title" class="detail__subtitle">Ultimi risultati</h3>
+            <div id="last-status" class="status" role="status"></div>
+            <ul id="last-list" class="match-list"></ul>
+          </section>
+        </div>
+      </section>
+
+      <!-- Annunci per chi usa un lettore di schermo: aggiunte e rimozioni dai preferiti -->
+      <p id="announcer" class="visually-hidden" role="status"></p>
+
+    </main>
+
+    <!-- Card squadra: la vista la clona e la riempie; il pulsante del nome apre il pannello,
+         quello in fondo aggiunge o toglie la squadra dai preferiti (testo, icona e azione li sceglie la vista) -->
+    <template id="team-card-template">
+      <li>
+        <article class="team-card">
+          <img class="team-card__badge" alt="" width="100" height="100" loading="lazy" decoding="async">
+          <h3 class="team-card__name">
+            <button type="button" class="team-card__open" data-action="open"><span data-field="name"></span><span class="visually-hidden">: prossime partite e risultati</span></button>
+          </h3>
+          <p class="team-card__meta" data-field="league"></p>
+          <p class="team-card__meta" data-field="country"></p>
+          <button type="button" class="team-card__favorite"><span aria-hidden="true" data-field="favoriteIcon"></span> <span data-field="favoriteLabel"></span><span class="visually-hidden" data-field="favoriteSuffix"></span></button>
+        </article>
+      </li>
+    </template>
+
+    <!-- Voce partita: data, squadre e, solo per le partite giocate, il punteggio; è un pulsante che apre la modale -->
+    <template id="match-template">
+      <li class="match">
+        <button type="button" class="match__open" data-bs-toggle="modal" data-bs-target="#match-modal" aria-haspopup="dialog">
+          <time class="match__date" data-field="date"></time>
+          <span class="match__name" data-field="name"></span>
+          <span class="match__score badge"><span class="visually-hidden">Risultato: </span><span data-field="score"></span></span>
+        </button>
+      </li>
+    </template>
+
+    <!-- Modale della partita (Bootstrap): la cornice è fissa, il contenuto lo mette la vista a ogni apertura -->
+    <div id="match-modal" class="modal fade" tabindex="-1" aria-labelledby="match-modal-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content match-modal">
+          <div class="modal-header">
+            <h2 id="match-modal-title" class="modal-title match-modal__title"></h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+          </div>
+          <div id="match-modal-body" class="modal-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenuto della modale: le due squadre con lo stemma, il punteggio (o «vs» se non è giocata) e i dati della partita;
+         le righe senza valore la vista le toglie -->
+    <template id="match-modal-template">
+      <div class="match-modal__content">
+        <div class="match-modal__teams">
+          <div class="match-modal__team">
+            <img class="match-modal__badge" data-badge="home" alt="" width="64" height="64" decoding="async">
+            <span class="match-modal__team-name" data-field="homeTeam"></span>
+          </div>
+          <span class="match-modal__score badge"><span class="visually-hidden">Risultato: </span><span data-field="score"></span></span>
+          <span class="match-modal__versus">vs</span>
+          <div class="match-modal__team">
+            <img class="match-modal__badge" data-badge="away" alt="" width="64" height="64" decoding="async">
+            <span class="match-modal__team-name" data-field="awayTeam"></span>
+          </div>
+        </div>
+        <dl class="match-modal__facts">
+          <div class="match-modal__fact"><dt>Data e ora</dt><dd data-field="kickoff"></dd></div>
+          <div class="match-modal__fact"><dt>Competizione</dt><dd data-field="league"></dd></div>
+          <div class="match-modal__fact"><dt>Stagione</dt><dd data-field="season"></dd></div>
+          <div class="match-modal__fact"><dt>Stadio</dt><dd data-field="venue"></dd></div>
+          <div class="match-modal__fact"><dt>Stato</dt><dd data-field="status"></dd></div>
+        </dl>
+      </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
